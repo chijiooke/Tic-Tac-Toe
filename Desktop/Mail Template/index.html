@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>The HTML5 Herald</title>
+    <meta name="description" content="The HTML5 Herald" />
+    <meta name="author" content="SitePoint" />
+
+    <link rel="stylesheet" href="css/styles.css?v=1.0" />
+  </head>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap");
+    .confirm-button {
+      border: 0px;
+      height: 5rem;
+      width: 15rem;
+      background-color: #0f62fa;
+      color: #fff;
+      font-size: 1.5rem;
+    }
+    .confirm-button:hover {
+        background-color: #023594;
+    }
+    .header-class {
+      font-size: 2rem;
+      color: #0f62fa;
+      margin-bottom: 0;
+      font-weight: bold;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .text-content {
+      margin-bottom: 1rem;
+    }
+
+  </style>
+
+  <body style="font-family: poppins">
+    <div class="container">
+      <div style="margin-bottom: 1rem">
+        <img
+          src="https://ik.imagekit.io/vm350sj4ki/Logo_1_Icon_jbhq8K_OvLb.svg"
+          height="30rem"
+        />
+      </div>
+      <div class="text-content">
+        <p class="header-class">Verify Your Account</p>
+        <p style="font-weight: 50">
+          Hello *********@mail.com ,Thanks for signing up on our
+          platform,<br />
+          Please Confirm Your Email Address
+        </p>
+      </div>
+
+      <button class="confirm-button" onClick="handleClick()">Confirm</button>
+    </div>
+    <script>
+      function handleClick() {
+        alert("confirmed"); //should be a handle function
+      }
+    </script>
+  </body>
+</html>

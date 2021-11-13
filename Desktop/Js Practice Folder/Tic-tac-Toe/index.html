@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<head>
+<title>Tic Tac Toe</title>
+<meta name="description" content="A Vanilla Tic Tac Toe Game">
+<meta name="author" content="Chijiooke">
+<link rel="stylesheet" href="./styles.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+</head>
+<body>
+    <div class="modal-container">
+        <div class="modal">
+            <p class="winner-title"> </p>
+                <p class="player-x-score"></p>
+                <p class="seperator">:</p>
+                <p class="player-o-score"></p>
+                <p class="final-score-x">Player X</p>
+                <p class="final-score-o">Player O</p>
+                <button class="restart" onclick="restartGame()"><i class="fas fa-redo" ></i> Play Again</button>
+        </div>
+    </div>
+    <div class="score-container"><p class="score-text">Player x:<span class="score-display">0</span>  Player o:0</p> </div>
+    <p class="title">Welcome To</p>
+    <div class="container">
+    <div id="0" class="tile"></div>
+    <div id="1" class="tile"></div>
+    <div id="2" class="tile"></div>
+    <div id="3" class="tile"></div>
+    <div id="4" class="tile"></div>
+    <div id="5" class="tile"></div>
+    <div id="6" class="tile"></div>
+    <div id="7" class="tile"></div>
+    <div id="8" class="tile"></div>
+    </div>
+    <div class="bottom-panel"><button class="play-button" onclick="pauseGame()">Pause</button><p class="player-turn">PLAYER X</p> </div>
+    <script src="./script.js" ></script>
+</body>
+</html>

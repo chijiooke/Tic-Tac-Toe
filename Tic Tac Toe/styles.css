@@ -6,10 +6,21 @@
     url("./DigitalNumbers-Regular.woff") format("woff");
 }
 
+:root {
+  --grey: #696969bf;
+  --purple: blueviolet;
+  ---black: rgb(19, 19, 19);
+  --white: #fff;
+  --sea-shell: seashell;
+  --green: chartreuse;
+  --light-green: rgb(214, 255, 172);
+  --red: #f7919b;
+}
+
 body {
   padding: 0;
   margin: 0;
-  background-color: rgb(19, 19, 19);
+  background-color: var(---black);
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -18,15 +29,51 @@ body {
   align-items: center;
 }
 
+b{
+  color: var(---black);
+  font-style: italic;
+}
+
+button {
+  outline: none;
+  background-color: var(--purple);
+  color: floralwhite;
+  border: 0;
+  cursor: pointer;
+  height: 3rem;
+  white-space: nowrap;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+button:hover {
+  opacity: 0.8;
+  /* transform: translateY(.1rem); */
+  scale: 1.02;
+  transition: .4s;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  color: var(--grey);
+}
 /* modal-------------------------- */
 .modal-container {
-  display: none;
+  display: flex;
   background-color: rgba(97, 4, 77, 0.5);
   width: 100%;
   height: 100%;
   position: absolute;
   z-index: 99;
-  /* display: flex; */
   justify-content: center;
   align-items: center;
 }
@@ -34,26 +81,128 @@ body {
 .modal {
   margin: 0;
   padding: 0;
-  background-color: seashell;
+  background-color: var(--sea-shell);
   min-width: 30rem;
   height: 20rem;
   border-radius: 0.5rem;
-  display: grid;
+  /* display: grid; */
+  display: none;
   grid-template-columns: auto auto auto;
   grid-template-rows: 40% 20% 20%;
   align-items: center;
   justify-content: center;
 }
 
+.welcome-modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  margin: 0;
+  padding: 1rem;
+  background-color: var(--sea-shell);
+  min-width: 30rem;
+  border-radius: 0.5rem;
+  color: var(--purple);
+  max-width: 400px;
+}
+
+/* ==================== ALERT NOTIFICATION ========================================= */
+.alert {
+  background-color: var(--light-green);
+  font-family: "Digital Numbers Regular";
+  color: var(---black);
+  width: 100%;
+  border-radius: 0.4rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  font-size: small;
+  display: none;
+}
+
+.error--variant{
+  background-color: var(--red);
+  color: var(--white)
+}
+
+
+.welcome-title-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1.8rem;
+  border-bottom: 1px dashed var(--grey);
+  font-family: "Digital Numbers Regular";
+  text-align: center;
+  overflow: hidden;
+}
+
+.welcome-title {
+  font-weight: 500;
+  font-size: 2rem;
+  color: var(---black);
+}
+
+.welcome-sub-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: 1rem;
+  color: var(--grey);
+}
+
+.welcome-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 0.5rem;
+}
+
+.welcome-actions > button {
+  width: 100%;
+}
+
+.welcome--instruction{
+  line-height:1.5rem;
+}
+
+.green--variant{
+  background-color: var(--green);
+  color: var(---black);
+  font-weight: bolder;
+}
+
+.invite--wrapper {
+  display: flex;
+  width: 100%;
+  margin-top: 2rem;
+}
+.invite-link {
+  padding: 0.8rem;
+  width: 100%;
+}
+
 .winner-title {
   grid-column-start: 1;
   grid-column-end: 4;
-  font-size: 2rem;
+  font-size: 1.4rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-weight: 600;
   padding: 0;
   margin: 0;
+}
+
+.copy--invite--btn {
+  outline: none;
+  background-color: var(---black);
+  color: floralwhite;
+  border: 0;
+  cursor: pointer;
+  height: 3rem;
+  white-space: nowrap;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .seperator {
@@ -121,13 +270,13 @@ body {
 .score-text {
   white-space: nowrap;
   font-size: 0.7rem;
-  color: chartreuse;
+  color: var(--green);
   font-family: "Digital Numbers Regular";
 }
 .title {
   white-space: nowrap;
   font-size: 2rem;
-  color: chartreuse;
+  color: var(--green);
   font-family: "Digital Numbers Regular";
 }
 
@@ -175,7 +324,7 @@ body {
 
 .player-turn {
   font-size: 1rem;
-  color: chartreuse;
+  color: var(--green);
   font-family: "Digital Numbers Regular";
 }
 
@@ -195,4 +344,17 @@ body {
   width: 6.1rem;
   position: relative;
   transition: 0.6s all;
+}
+
+@keyframes scroll-left {
+  0% {
+    -moz-transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+  100% {
+    -moz-transform: translateX(-100%);
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
 }

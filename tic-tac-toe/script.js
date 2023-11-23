@@ -18,47 +18,22 @@ const ws = new Websuckit({
   publicKey,
 });
 
-const connectionUrl = ws.getConnectionUrl({
-  channelName: "tic-tac-toe",
-  channelPassKey: "kHNw3H4aC4iPOhvqB2JK",
-});
 
-const socket = new WebSocket(connectionUrl.value);
 
 const activePlayers = [];
+let playerRole;
+let gameSocket;
 
 const actions = {
   SET_ACTIVE_PLAYERS: "SET_ACTIVE_PLAYERS",
+  PLAYER_JOINED: "PLAYER_JOINED",
   START_GAME: "START_GAME",
   END_GAME: "END_GAME",
   RESTART: "RESTART",
   PLAYED: "PLAYED",
   GAME_FULL: "GAME_FULL",
 };
-const playerID = Math.random();
 
-socket.addEventListener("open", (event) => {
-  socket.send(
-    JSON.stringify({
-      action: actions.SET_ACTIVE_PLAYERS,
-      payload: activePlayers,
-    })
-  );
-  if (activePlayers.length === 0) {
-    activePlayers.push(playerID);
-  } else if (activePlayers.length === 1) {
-    activePlayers.push(playerID);
-    startgame();
-  } else
-    socket.send(
-      JSON.stringify({
-        action: actions.GAME_FULL,
-        payload: "No more than two users",
-      })
-    );
-});
-
-socket.addEventListener("message", (event) => {});
 
 const startgame = () => {};
 
@@ -142,9 +117,6 @@ const createGameChannel = () => {
 
       gameId = res.channel.name;
       passkey = res.channel.pass_key;
-      userId = res.channel.user_id;
-
-      console.log({ gameId, passkey, userId });
 
       sharableLink = `${window.location}?${new URLSearchParams({
         passkey,
@@ -179,26 +151,88 @@ const PLAYER_O = "o";
 
 roundWon = false;
 score = [];
-let startingPlayer;
+let startingPlayer = PLAYER_X;
 let gamePaused = false;
 let tileValue = ["", "", "", "", "", "", "", "", ""];
 
 // any player can start the game, could either be player "x" or "o"
 let player = document.querySelector(".player-turn");
-(function () {
-  startingPlayerRandom = Math.ceil(Math.random() * 2);
-  startingPlayer = startingPlayerRandom === 1 ? PLAYER_X : PLAYER_O;
-  player.innerHTML = "Player " + startingPlayer + " starts";
-  return (startingPlayer = startingPlayer);
+player.innerHTML = "Player " + startingPlayer + " starts";
+
+//====================== SET GAMESOCKET =========================================
+const setGameSocket = () =>
+  gameSocket.addEventListener("message", (e) => {
+    const response = JSON.parse(e?.data);
+    const modal = window.document.querySelector(".modal-container");
+
+    if (response.action === actions.PLAYER_JOINED) {
+      modal.style.display = "none";
+    }
+    switch (response.action) {
+      case actions.PLAYER_JOINED:
+        modal.style.display = "none";
+        document.querySelector(".welcome-modal ").style.display = "none";
+        break;
+      case actions.PLAYED:
+        const clickedTile = response?.payload?.clickedTile;
+        playMove(clickedTile);
+        console.log({ playerRole });
+        break;
+
+      default:
+        break;
+    }
+  });
+(() => {
+  if (!!gameSocket) {
+    setGameSocket();
+  }
 })();
 
-//======================Connect WIth URL =========================================
+//====================== Connect WIth URL =========================================
 
 (() => {
-  console.log(window.location);
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const passkey = urlParams.get("passkey");
+  const gameId = urlParams.get("gameId");
+  console.log({ passkey, gameId });
+
+  let connectionUrl;
+  if (passkey && gameId) {
+    connectionUrl = ws.getConnectionUrl({
+      channelName: gameId,
+      channelPassKey: passkey,
+    });
+    gameSocket = new WebSocket(connectionUrl.value);
+    console.log(gameSocket.onerror)
+
+    gameSocket.addEventListener("open", (event) => {
+      document.querySelector(".welcome-modal ").style.display = "none";
+      const modal = window.document.querySelector(".modal-container");
+      modal.style.display = "none";
+      playerRole = PLAYER_O;
+      gameSocket.send(
+        JSON.stringify({
+          action: actions.PLAYER_JOINED,
+          payload: null,
+        })
+      );
+      setGameSocket();
+    });
+  }
 })();
 
 const welcomeTitle = document.querySelector(".welcome-title");
+
+// ============================= COPY GAME URL & INITIALIZE GAME ====================================
+{
+  /*
+   *Copy game URL
+   *Initialize the gamesocket(Websucket backend) using game id and passkey
+   *start listening for JOINER
+   */
+}
 
 const copyLink = () => {
   showAlert("Copied to clipboard");
@@ -206,12 +240,22 @@ const copyLink = () => {
   welcomeTitle.innerHTML = "Ready player 1, Waiting for player 2...";
   welcomeTitle.style.animation = "scroll-left 20s linear infinite";
   welcomeTitle.style.fontSize = "1rem";
+  const connectionUrl = ws.getConnectionUrl({
+    channelName: gameId,
+    channelPassKey: passkey,
+  });
+
+  gameSocket = new WebSocket(connectionUrl.value);
+  playerRole = PLAYER_X;
+  setGameSocket();
 };
+
+// ============ DELETE GAME INSTANCE (GAME SOCKET) ON CONNECTION CLOSE =========================
 
 // update/change player
 let currentplayer = startingPlayer;
-changeplayer = () => {
-  currentplayer = currentplayer === PLAYER_O ? PLAYER_X : PLAYER_O;
+const changeplayer = () => {
+  currentplayer = currentplayer === PLAYER_X ? PLAYER_O : PLAYER_X;
 };
 
 //handle score
@@ -238,11 +282,21 @@ displayScore = () => {
 
 // game structure
 handleClick = (e) => {
+  if (currentplayer !== playerRole) {
+    return;
+  }
   let clickedTile = parseInt(e.target.id);
+  playMove(clickedTile);
+  gameSocket.send(
+    JSON.stringify({ action: actions.PLAYED, payload: { clickedTile } })
+  );
+};
 
+const playMove = (clickedTile) => {
+  console.log({ currentplayer });
   handleClickedTile = (clickedTile) => {
     tileValue[clickedTile] = currentplayer;
-    socket.send(
+    gameSocket.send(
       JSON.stringify({ player: currentplayer, tileNumber: clickedTile })
     );
   };
@@ -280,6 +334,8 @@ restartGame = () => {
 
 handleWin = (winner, score) => {
   document.querySelector(".modal-container ").style.display = "flex";
+  document.querySelector(".score--board--modal--wrapper").style.display = "grid";
+  
   document.querySelector(".winner-title ").innerHTML =
     "&#127881 Player " + winner + " Won";
   document

@@ -78,7 +78,7 @@ h5 {
   align-items: center;
 }
 
-.modal {
+.score--board--modal--wrapper {
   margin: 0;
   padding: 0;
   background-color: var(--sea-shell);
@@ -251,7 +251,8 @@ h5 {
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   grid-column-start: 1;
   grid-column-end: 4;
-  background-color: inherit;
+  color: var(---black);
+  background-color: var(--sea-shell);
 }
 
 .restart:hover {

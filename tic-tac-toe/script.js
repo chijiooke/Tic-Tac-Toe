@@ -1,5 +1,3 @@
-// import config from './config';
-// const config = require("./config").default
 
 const config = {
   PUBLIC_KEY: `-----BEGIN RSA PUBLIC KEY-----
@@ -191,7 +189,8 @@ const setGameSocket = () =>
           showAlert("Player Disconnected from game", alertVariants.ERROR);
           restartGame();
           score = [];
-          playerRole !== PLAYER_X ? (inviteLinkField.value = "") : null;
+          // playerRole !== PLAYER_X ? (inviteLinkField.value = "") : null;
+          inviteLinkField.value = ""
           document.querySelector(".welcome-modal ").style.display = "grid";
           const modal = window.document.querySelector(".modal-container");
           modal.style.display = "flex";

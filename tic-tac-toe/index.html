@@ -15,6 +15,8 @@
     <script src="https://unpkg.com/@websuckit/js/dist/websuckit.umd.js"></script>
   </head>
   <body>
+    <div class="alert" id="alert">🚀 Copied to clipboard</div>
+    <div class="loader"></div>
     <div class="modal-container">
       <div class="score--board--modal--wrapper">
         <p class="winner-title"></p>
@@ -29,8 +31,14 @@
       </div>
 
       <div class="welcome-modal">
-        <div class="alert" id="alert">🚀 Copied to clipboard</div>
         <div class="welcome-title-wrapper">
+          <img
+            class="waiting__gif"
+            width="100%"
+            height="auto"
+            src="./naruto-sasuke.gif"
+            alt="x and o"
+          />
           <p class="welcome-title">⚔️ TIC TAC TOE</p>
         </div>
         <div class="welcome--instruction">
@@ -44,7 +52,7 @@
 
         <h4></h4>
         <div class="welcome-actions">
-          <button onclick="createGameChannel()">
+          <button onclick="createGameChannel()" class="game--start--btn">
             Start New Game
             <img
               width="22"

@@ -1,4 +1,3 @@
-
 const config = {
   PUBLIC_KEY: `-----BEGIN RSA PUBLIC KEY-----
   MIIBCgKCAQEArEfY9bkwc08J7gQE8wzjb+ZZTNB6HCPfNKiXqjkYLO3DQXe+KCTt
@@ -59,6 +58,16 @@ setTimeout("tic()", 1500);
 setTimeout("tac()", 2000);
 setTimeout("toe()", 2500);
 
+// Player Roles
+const PLAYER_X = "x";
+const PLAYER_O = "o";
+
+roundWon = false;
+score = [];
+let startingPlayer = PLAYER_X;
+let gamePaused = false;
+let tileValue = ["", "", "", "", "", "", "", "", ""];
+
 //====================== ALERT NOTIFICATIONS =========================================
 const alertBar = document.createElement("div");
 
@@ -78,7 +87,6 @@ const showAlert = (alertMessage = "hello", variant) => {
 
   alertBar.style.transform = "translateX('31rem')";
   alertBar.style.right = "1rem";
-  // alertBar.style.display = "flex";
   setTimeout("toggleAlertVisiblilty()", 3500);
   toggleAlertVisiblilty = () => {
     clearTimeout();
@@ -105,7 +113,7 @@ inviteLinkField.disabled = true;
 
 const createGameChannel = () => {
   isCreating = true;
-
+  playerRole = PLAYER_X;
   const startGameBtn = document.querySelector(".game--start--btn");
   startGameBtn.appendChild(loader);
   startGameBtn.style.opacity = 0.4;
@@ -141,7 +149,7 @@ const createGameChannel = () => {
         gameId,
         channelId,
       })}`;
-
+     
       inviteLinkField.value = sharableLink;
     },
     (err) => {
@@ -152,16 +160,6 @@ const createGameChannel = () => {
   );
 };
 
-// initialize game
-const PLAYER_X = "x";
-const PLAYER_O = "o";
-
-roundWon = false;
-score = [];
-let startingPlayer = PLAYER_X;
-let gamePaused = false;
-let tileValue = ["", "", "", "", "", "", "", "", ""];
-
 // any player can start the game, could either be player "x" or "o"
 let player = document.querySelector(".player-turn");
 player.innerHTML = "Player " + startingPlayer + " starts";
@@ -171,7 +169,6 @@ const setGameSocket = () =>
   gameSocket.addEventListener("message", (e) => {
     const response = JSON.parse(e?.data);
     const modal = window.document.querySelector(".modal-container");
-
     switch (response.action) {
       case actions.PLAYER_JOINED:
         modal.style.display = "none";
@@ -184,31 +181,8 @@ const setGameSocket = () =>
 
         break;
       case actions.DISCONNECT:
-        try {
-          ws.deleteChannel({ channelId });
-          showAlert("Player Disconnected from game", alertVariants.ERROR);
-          restartGame();
-          score = [];
-          // playerRole !== PLAYER_X ? (inviteLinkField.value = "") : null;
-          inviteLinkField.value = ""
-          document.querySelector(".welcome-modal ").style.display = "grid";
-          const modal = window.document.querySelector(".modal-container");
-          modal.style.display = "flex";
-
-          document.querySelector(
-            ".score--board--modal--wrapper"
-          ).style.display = "none";
-
-          playerRole = undefined;
-          if (location.href.includes("?")) {
-            history.pushState({}, null, location.href.split("?")[0]);
-          }
-        } catch (error) {
-          showAlert(JSON.stringify(error), alertVariants.ERROR);
-        }
-
+        handleDisconnect();
         break;
-
       default:
         break;
     }
@@ -220,6 +194,7 @@ const setGameSocket = () =>
   }
 })();
 
+// ========================================= LISTEN FOR TAB CLOSE ==============================
 window.addEventListener("beforeunload", (event) => {
   gameSocket.send(
     JSON.stringify({
@@ -229,8 +204,31 @@ window.addEventListener("beforeunload", (event) => {
   );
 });
 
-//====================== Connect WIth URL =========================================
+//====================== HANDLE GAME DISCONNECT =========================================
+const handleDisconnect = () => {
+  try {
+    ws.deleteChannel({ channelId });
+    showAlert("Player Disconnected from game", alertVariants.ERROR);
+    restartGame();
+    score = [];
+    inviteLinkField.value = "";
+    document.querySelector(".welcome-modal ").style.display = "grid";
+    const modal = window.document.querySelector(".modal-container");
+    modal.style.display = "flex";
 
+    document.querySelector(".score--board--modal--wrapper").style.display =
+      "none";
+
+    playerRole = undefined;
+    if (location.href.includes("?")) {
+      history.pushState({}, null, location.href.split("?")[0]);
+    }
+  } catch (error) {
+    showAlert(JSON.stringify(error), alertVariants.ERROR);
+  }
+};
+
+//====================== Connect WIth URL =========================================
 (() => {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -248,13 +246,6 @@ window.addEventListener("beforeunload", (event) => {
       channelPassKey: passkey,
     });
 
-    console.log(
-      "wert",
-      ws.getConnectionUrl({
-        channelName: gameId,
-        channelPassKey: passkey,
-      })
-    );
     if (!connectionUrl.value) {
       showAlert("error connecting", alertVariants.ERROR);
       playerRole = undefined;
@@ -265,7 +256,6 @@ window.addEventListener("beforeunload", (event) => {
     }
 
     gameSocket = new WebSocket(connectionUrl.value);
-    console.log(gameSocket);
 
     gameSocket.addEventListener("open", () => {
       document.querySelector(".welcome-modal ").style.display = "none";
@@ -288,6 +278,7 @@ window.addEventListener("beforeunload", (event) => {
           payload: { player: playerRole },
         })
       );
+      handleDisconnect();
     });
   }
 })();
@@ -321,7 +312,7 @@ const copyLink = () => {
   setGameSocket();
 };
 
-// ============ DELETE GAME INSTANCE (GAME SOCKET) ON CONNECTION CLOSE =========================
+// ============ GAME LOGIC =========================
 
 // update/change player
 let currentplayer = startingPlayer;
@@ -353,22 +344,25 @@ displayScore = () => {
 
 // game structure
 handleClick = (e) => {
+  console.log({ playerRole, currentplayer });
   if (currentplayer !== playerRole) {
     return;
   }
   let clickedTile = parseInt(e.target.id);
   playMove(clickedTile);
-  gameSocket.send(
-    JSON.stringify({ action: actions.PLAYED, payload: { clickedTile } })
-  );
 };
 
 const playMove = (clickedTile) => {
-  // console.log({ currentplayer });
   handleClickedTile = (clickedTile) => {
     tileValue[clickedTile] = currentplayer;
     gameSocket.send(
-      JSON.stringify({ player: currentplayer, tileNumber: clickedTile })
+      JSON.stringify({
+        action: actions.PLAYED,
+        payload: {
+          player: currentplayer,
+          clickedTile,
+        },
+      })
     );
   };
 

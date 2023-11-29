@@ -15,6 +15,8 @@
   --green: chartreuse;
   --light-green: rgb(192, 242, 142);
   --red: #f36674;
+  --game-font: "Digital Numbers Regular",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+  Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif
 }
 
 body {
@@ -52,7 +54,6 @@ button {
 
 button:hover {
   opacity: 0.8;
-  /* transform: translateY(.1rem); */
   scale: 1.02;
   transition: 0.4s;
 }
@@ -66,6 +67,7 @@ h5 {
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   color: var(--grey);
 }
+
 /* modal-------------------------- */
 .modal-container {
   display: flex;
@@ -217,7 +219,8 @@ h5 {
   grid-column-end: 3;
   font-size: 3rem;
   text-align: center;
-  font-family: "Digital Numbers Regular";
+  font-family: var(--game-font),
+    sans-serif;
 }
 .player-x-score {
   font-size: 3rem;
@@ -226,7 +229,7 @@ h5 {
   grid-column-start: 1;
   grid-column-end: 2;
   text-align: center;
-  font-family: "Digital Numbers Regular";
+  font-family:  var(--game-font);
 }
 .player-o-score {
   font-size: 3rem;
@@ -235,7 +238,7 @@ h5 {
   grid-column-start: 3;
   grid-column-end: 4;
   text-align: center;
-  font-family: "Digital Numbers Regular";
+  font-family:  var(--game-font);
 }
 
 .final-score-x {
@@ -279,13 +282,13 @@ h5 {
   white-space: nowrap;
   font-size: 0.7rem;
   color: var(--green);
-  font-family: "Digital Numbers Regular";
+  font-family:  var(--game-font);
 }
 .title {
   white-space: nowrap;
   font-size: 2rem;
   color: var(--green);
-  font-family: "Digital Numbers Regular";
+  font-family:  var(--game-font);
 }
 
 .container {
@@ -333,7 +336,7 @@ h5 {
 .player-turn {
   font-size: 1rem;
   color: var(--green);
-  font-family: "Digital Numbers Regular";
+  font-family:  var(--game-font);
 }
 
 .play-button {

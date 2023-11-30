@@ -40,7 +40,18 @@ const alertVariants = {
 };
 const startgame = () => {};
 
+// ========================= HTML ELEMENTS =========================
+
 title = document.querySelector(".title");
+const inviteLinkWrapper = document.querySelector(".invite--wrapper");
+const loadingNarutoGif = document.querySelector(".waiting__gif");
+const welcomeTitle = document.querySelector(".welcome-title");
+const loader = document.querySelector(".loader");
+const startGameBtn = document.querySelector(".game--start--btn");
+const welcomeInstruction = document.querySelector(".welcome--instruction");
+const welcomeModal = document.querySelector(".welcome-modal ");
+const modalBackground = window.document.querySelector(".modal-container");
+const loadingModal = window.document.querySelector(".loading--modal");
 
 tic = () => {
   title.innerHTML = "Tic";
@@ -68,6 +79,15 @@ let startingPlayer = PLAYER_X;
 let gamePaused = false;
 let tileValue = ["", "", "", "", "", "", "", "", ""];
 
+//====================== Handle Waiting For Player ===================================
+const handleWaitingForOtherPlayer = (waitingText) => {
+  loadingNarutoGif.style.display = "block";
+  welcomeTitle.innerHTML = waitingText;
+  welcomeTitle.style.animation = "simulateLoading 1s linear infinite";
+  welcomeTitle.style.fontSize = "0.8rem";
+  welcomeTitle.appendChild(loader);
+};
+
 //====================== ALERT NOTIFICATIONS =========================================
 const alertBar = document.createElement("div");
 
@@ -82,9 +102,7 @@ const showAlert = (alertMessage = "hello", variant) => {
   if (variant) {
     classList.add(variant);
   }
-
   alertBar.innerHTML = alertMessage;
-
   alertBar.style.transform = "translateX('31rem')";
   alertBar.style.right = "1rem";
   setTimeout("toggleAlertVisiblilty()", 3500);
@@ -95,9 +113,9 @@ const showAlert = (alertMessage = "hello", variant) => {
   };
 };
 
-//====================== CREATE CHANNEL =========================================
+//====================== CREATE GAME CHANNEL =========================================
 /****
- * CREATE CHANNEL: a funtion to create a game on the websuckit(web socket engine)
+ * CREATE CHANNEL: a function to create a game on the websuckit(web socket engine)
  */
 
 let isCreating = false;
@@ -106,15 +124,13 @@ let gameId = "";
 let sharableLink;
 let channelId = "";
 
-const show = () => console.log({ channelId }, "looooo");
-
 const inviteLinkField = document.getElementById("invite-link");
 inviteLinkField.disabled = true;
 
 const createGameChannel = () => {
   isCreating = true;
   playerRole = PLAYER_X;
-  const startGameBtn = document.querySelector(".game--start--btn");
+
   startGameBtn.appendChild(loader);
   startGameBtn.style.opacity = 0.4;
   startGameBtn.disabled = true;
@@ -132,25 +148,32 @@ const createGameChannel = () => {
   };
 
   showAlert("🚀 Initializing Game...");
-
+  if (channelId || sharableLink?.length) {
+    ws.deleteChannel({ channelId });
+  }
   ws.createChannel({ channel: crypto.randomUUID(), max_connections: 2 }).then(
     (res) => {
-      showAlert("Game Created Successfully");
+      showAlert(
+        sharableLink?.length
+          ? "new link generated"
+          : "Game Created Successfully"
+      );
       toggleButtonDisability();
       endCreation();
 
       gameId = res.channel.name;
       passkey = res.channel.pass_key;
       channelId = res.channel.id;
-      show();
 
       sharableLink = `${window.location}?${new URLSearchParams({
         passkey,
         gameId,
         channelId,
       })}`;
-     
+
       inviteLinkField.value = sharableLink;
+      inviteLinkWrapper.style.display = "flex";
+      startGameBtn.innerHTML = "Regenerate URL";
     },
     (err) => {
       showAlert("😞 oops, failed to create...", alertVariants.ERROR);
@@ -160,19 +183,59 @@ const createGameChannel = () => {
   );
 };
 
-// any player can start the game, could either be player "x" or "o"
+// ============================= COPY GAME URL & INITIALIZE GAME ====================================
+/*
+ *Copy game URL
+ *Initialize the gamesocket(Websucket backend) using game id and passkey
+ *start listening for JOINER
+ */
+
+const copyLink = () => {
+  showAlert("📋 Copied to clipboard..");
+  navigator.clipboard.writeText(sharableLink);
+  handleWaitingForOtherPlayer("Ready player 1, Waiting for player 2...");
+  const connectionUrl = ws.getConnectionUrl({
+    channelName: gameId,
+    channelPassKey: passkey,
+  });
+
+  try {
+    gameSocket = new WebSocket(connectionUrl.value);
+    playerRole = PLAYER_X;
+  } catch (error) {
+    gameSocket.addEventListener("error", handleDisconnect());
+  }
+
+  setGameSocket();
+};
+
+/*====================== Display Player Turn =========================================*/
 let player = document.querySelector(".player-turn");
 player.innerHTML = "Player " + startingPlayer + " starts";
 
-//====================== SET GAMESOCKET =========================================
-const setGameSocket = () =>
+/*====================== SET GAMESOCKET =========================================
+manage all actions from the websocket event listener*/
+
+const setGameSocket = () => {
+  gameSocket.addEventListener("error", (e) => {
+    gameSocket.send(
+      JSON.stringify({
+        action: actions.DISCONNECT,
+        payload: { player: playerRole },
+      })
+    );
+    handleDisconnect();
+  });
+
   gameSocket.addEventListener("message", (e) => {
     const response = JSON.parse(e?.data);
     const modal = window.document.querySelector(".modal-container");
     switch (response.action) {
       case actions.PLAYER_JOINED:
         modal.style.display = "none";
-        document.querySelector(".welcome-modal ").style.display = "none";
+        document.querySelector(".welcome-modal").style.display = "none";
+        loadingModal.style.display = "none";
+        welcomeModal.style.display = "none";
         break;
 
       case actions.PLAYED:
@@ -181,12 +244,14 @@ const setGameSocket = () =>
 
         break;
       case actions.DISCONNECT:
+        loadingModal.style.display = "flex";
         handleDisconnect();
         break;
       default:
         break;
     }
   });
+};
 
 (() => {
   if (!!gameSocket) {
@@ -206,25 +271,49 @@ window.addEventListener("beforeunload", (event) => {
 
 //====================== HANDLE GAME DISCONNECT =========================================
 const handleDisconnect = () => {
-  try {
-    ws.deleteChannel({ channelId });
-    showAlert("Player Disconnected from game", alertVariants.ERROR);
-    restartGame();
-    score = [];
-    inviteLinkField.value = "";
-    document.querySelector(".welcome-modal ").style.display = "grid";
-    const modal = window.document.querySelector(".modal-container");
-    modal.style.display = "flex";
+  loadingModal.style.display = "flex";
+  if (ws) {
+    console.log({ ws });
+    new Promise((resolve, reject) => {
+      fetch(ws?.deleteChannel({ channelId }))
+        .then((res) => {
+          console.log({ res });
+          showAlert("Player Disconnected from game", alertVariants.ERROR);
+          restartGame();
+          score = [];
+          inviteLinkField.value = "";
+          inviteLinkWrapper.style.display = "none";
+          document.querySelector(".welcome-modal ").style.display = "grid";
+          const modal = window.document.querySelector(".modal-container");
+          modal.style.display = "flex";
+          welcomeModal.style.display = "grid";
 
-    document.querySelector(".score--board--modal--wrapper").style.display =
-      "none";
+          document.querySelector(
+            ".score--board--modal--wrapper"
+          ).style.display = "none";
+        })
+        .then(() => {
+          playerRole = undefined;
+          if (location.href.includes("?")) {
+            history.pushState({}, null, location.href.split("?")[0]);
+          }
+          loadingModal.style.display = "none";
+        })
+        .catch((err) => {
+          console.log({ err });
+          showAlert(
+            "failed to diconnect kindly refrech browser/ clear chache",
+            alertVariants.ERROR
+          );
+        });
 
-    playerRole = undefined;
+      console.log({ resolve, reject });
+    });
+  } else {
     if (location.href.includes("?")) {
       history.pushState({}, null, location.href.split("?")[0]);
     }
-  } catch (error) {
-    showAlert(JSON.stringify(error), alertVariants.ERROR);
+    window.location.reload();
   }
 };
 
@@ -241,76 +330,47 @@ const handleDisconnect = () => {
 
   let connectionUrl;
   if (passkey && gameId && channelId) {
-    connectionUrl = ws.getConnectionUrl({
-      channelName: gameId,
-      channelPassKey: passkey,
-    });
+    welcomeModal.style.display = "none";
+    loadingModal.style.display = "flex";
+    try {
+      connectionUrl = ws.getConnectionUrl({
+        channelName: gameId,
+        channelPassKey: passkey,
+      });
 
-    if (!connectionUrl.value) {
-      showAlert("error connecting", alertVariants.ERROR);
-      playerRole = undefined;
-      if (window.location.href.includes("?")) {
-        history.pushState({}, null, location.href.split("?")[0]);
+      gameSocket = new WebSocket(connectionUrl.value);
+      if (gameSocket.readyState === 3) {
+        showAlert("Connection Failed");
+        throw new Error("failed to connect");
       }
-      return;
+      gameSocket.addEventListener("open", () => {
+        playerRole = PLAYER_O;
+        modalBackground.style.display = "none";
+
+        gameSocket.send(
+          JSON.stringify({
+            action: actions.PLAYER_JOINED,
+            payload: null,
+          })
+        );
+        setGameSocket();
+      });
+      if (gameSocket && (playerRole === PLAYER_O || !playerRole)) {
+        gameSocket.addEventListener("close", () => handleDisconnect());
+        gameSocket.addEventListener("error", () => handleDisconnect());
+      }
+    } catch (error) {
+      if (!connectionUrl?.value) {
+        showAlert("error connecting", alertVariants.ERROR);
+        playerRole = undefined;
+        if (window.location.href.includes("?")) {
+          history.pushState({}, null, location.href.split("?")[0]);
+        }
+        return;
+      }
     }
-
-    gameSocket = new WebSocket(connectionUrl.value);
-
-    gameSocket.addEventListener("open", () => {
-      document.querySelector(".welcome-modal ").style.display = "none";
-      const modal = window.document.querySelector(".modal-container");
-      modal.style.display = "none";
-      playerRole = PLAYER_O;
-      gameSocket.send(
-        JSON.stringify({
-          action: actions.PLAYER_JOINED,
-          payload: null,
-        })
-      );
-      setGameSocket();
-    });
-
-    gameSocket.addEventListener("close", (e) => {
-      gameSocket.send(
-        JSON.stringify({
-          action: actions.DISCONNECT,
-          payload: { player: playerRole },
-        })
-      );
-      handleDisconnect();
-    });
   }
 })();
-
-const welcomeTitle = document.querySelector(".welcome-title");
-const loader = document.querySelector(".loader");
-
-// ============================= COPY GAME URL & INITIALIZE GAME ====================================
-{
-  /*
-   *Copy game URL
-   *Initialize the gamesocket(Websucket backend) using game id and passkey
-   *start listening for JOINER
-   */
-}
-const copyLink = () => {
-  showAlert("📋 Copied to clipboard..");
-  const narutoSasukeImage = document.querySelector(".waiting__gif");
-  narutoSasukeImage.style.display = "block";
-  navigator.clipboard.writeText(sharableLink);
-  welcomeTitle.innerHTML = "Ready player 1, Waiting for player 2...";
-  welcomeTitle.style.animation = "scroll-left 20s linear infinite";
-  welcomeTitle.style.fontSize = "1rem";
-  const connectionUrl = ws.getConnectionUrl({
-    channelName: gameId,
-    channelPassKey: passkey,
-  });
-
-  gameSocket = new WebSocket(connectionUrl.value);
-  playerRole = PLAYER_X;
-  setGameSocket();
-};
 
 // ============ GAME LOGIC =========================
 
@@ -344,7 +404,6 @@ displayScore = () => {
 
 // game structure
 handleClick = (e) => {
-  console.log({ playerRole, currentplayer });
   if (currentplayer !== playerRole) {
     return;
   }

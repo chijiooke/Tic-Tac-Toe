@@ -5,7 +5,11 @@
     <meta name="description" content="A Vanilla Tic Tac Toe Game" />
     <meta name="author" content="Chijiooke" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins"
+      rel="stylesheet"
+    />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
@@ -29,14 +33,53 @@
           <i class="fas fa-redo"></i> Play Again
         </button>
       </div>
-
+      <div class="loading--modal">
+        <img
+          class="sasuke--img"
+          width="70%"
+          height="auto"
+          src="./assets/sasuke-2.png"
+          alt="Sasuke Uchiha"
+        />
+        <img
+          class="naruto--img"
+          width="70%"
+          height="auto"
+          src="./assets/naruto-1.png"
+          alt="Naruto Uzumaki"
+        />
+        <div class="loading--card">
+          <p>Tic</p>
+          <p>Tac</p>
+          <p>Toe</p>
+        </div>
+        <div class="loading-game-text">
+          <p><b>Welcome</b></p>
+          <p>A simple multiplayer game built on the websuckit Javascript SDK</p>
+          <h4 ><b>Loading...</b></h4>
+        </div>
+      </div>
       <div class="welcome-modal">
+        <img
+          class="sasuke--img"
+          width="100%"
+          height="auto"
+          src="./assets/sasuke-2.png"
+          alt="Sasuke Uchiha"
+        />
+        <img
+          class="naruto--img"
+          width="100%"
+          height="auto"
+          src="./assets/naruto-1.png"
+          alt="Naruto Uzumaki"
+        />
         <div class="welcome-title-wrapper">
           <img
             class="waiting__gif"
             width="100%"
             height="auto"
-            src="./naruto-sasuke.gif"
+            src="./assets/naruto-sasuke.gif"
             alt="x and o"
           />
           <p class="welcome-title">⚔️ TIC TAC TOE</p>
@@ -44,13 +87,23 @@
         <div class="welcome--instruction">
           <h3><b>Seems like you're all alone, again.</b></h3>
           <p class="welcome-sub-text">
-            This is a multiplayer game, to join
+            This is a multiplayer game, to play
             <b>start a new game </b> and simply invite a friend by
             <b>copying and sharing invite link</b> with them
+          </p>
+          <p class="welcome-sub-text">
+            All they have to do is <b>click the URL</b> or paste it in a browser
+            to join your game
           </p>
         </div>
 
         <h4></h4>
+        <div class="invite--wrapper">
+          <button class="copy--invite--btn" onclick="copyLink()">
+            <i class="far fa-clipboard"></i> Copy Invite
+          </button>
+          <input id="invite-link" class="invite-link" />
+        </div>
         <div class="welcome-actions">
           <button onclick="createGameChannel()" class="game--start--btn">
             Start New Game
@@ -61,22 +114,6 @@
               alt="controller"
             />
           </button>
-          <button class="green--variant">
-            Join game via link
-            <img
-              width="22"
-              height="22"
-              src="https://img.icons8.com/ios-filled/000000/link--v1.png"
-              alt="link--v1"
-            />
-          </button>
-        </div>
-
-        <div class="invite--wrapper">
-          <button class="copy--invite--btn" onclick="copyLink()">
-            <i class="far fa-clipboard"></i> Copy Invite
-          </button>
-          <input id="invite-link" class="invite-link" />
         </div>
       </div>
     </div>
@@ -101,7 +138,7 @@
       <div id="8" class="tile"></div>
     </div>
     <div class="bottom-panel">
-      <button class="play-button" onclick="pauseGame()">Pause</button>
+      <button class="play-button" onclick="handleDisconnect()">Leave</button>
       <p class="player-turn">PLAYER X</p>
     </div>
       

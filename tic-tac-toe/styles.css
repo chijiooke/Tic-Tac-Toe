@@ -15,8 +15,9 @@
   --green: chartreuse;
   --light-green: rgb(192, 242, 142);
   --red: #f36674;
-  --game-font: "Digital Numbers Regular",-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-  Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif
+  --game-font: "Digital Numbers Regular", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
 }
 
 body {
@@ -68,46 +69,6 @@ h5 {
   color: var(--grey);
 }
 
-/* modal-------------------------- */
-.modal-container {
-  display: flex;
-  background-color: rgba(97, 4, 77, 0.5);
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  z-index: 99;
-  justify-content: center;
-  align-items: center;
-}
-
-.score--board--modal--wrapper {
-  margin: 0;
-  padding: 0;
-  background-color: var(--sea-shell);
-  min-width: 30rem;
-  height: 20rem;
-  border-radius: 0.5rem;
-  display: none;
-  grid-template-columns: auto auto auto;
-  grid-template-rows: 40% 20% 20%;
-  align-items: center;
-  justify-content: center;
-}
-
-.welcome-modal {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: start;
-  margin: 0;
-  padding: 1rem;
-  background-color: var(--sea-shell);
-  min-width: 30rem;
-  border-radius: 0.5rem;
-  color: var(--purple);
-  max-width: 400px;
-}
-
 /* ==================== ALERT NOTIFICATION ========================================= */
 .alert {
   background-color: var(--light-green);
@@ -132,31 +93,98 @@ h5 {
   color: var(--white);
 }
 
+/* modal-------------------------- */
+.modal-container {
+  display: flex;
+  background-color: rgba(97, 4, 77, 0.5);
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: 99;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+
+}
+
+
+.score--board--modal--wrapper {
+  margin: 0;
+  padding: 0;
+  background-color: var(--sea-shell);
+  min-width: 30rem;
+  height: 20rem;
+  border-radius: 0.5rem;
+  display: none;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: 40% 20% 20%;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-modal {
+  display: grid;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  margin: 0;
+  padding: 1rem;
+  background-color: var(--sea-shell);
+  min-width: 30rem;
+  border-radius: 0.5rem;
+  color: var(--purple);
+  max-width: 400px;
+  position: relative;
+  /* z-index: 10; */
+}
+
 .welcome-title-wrapper {
   width: 100%;
   box-sizing: border-box;
   margin-bottom: 1.8rem;
   border-bottom: 1px dashed var(--grey);
-  font-family: "Digital Numbers Regular";
+  font-family: "Digital Numbers Regular", poppins;
   text-align: center;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.sasuke--img,
+.naruto--img {
+  width: auto;
+  height: 400px;
+  position: absolute;
+  pointer-events: none;
+}
+
+.naruto--img {
+  right: -5rem;
+}
+
+.sasuke--img {
+  left: -8rem;
 }
 
 .welcome-title {
   font-weight: 500;
   font-size: 2rem;
   color: var(--black);
+  
 }
 
 .welcome-sub-text {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  font-size: 1rem;
+  font-size: 13px;
   color: var(--grey);
 }
 
 .waiting__gif {
   display: none;
+  width: 95%;
+  border-radius: 0.6rem;
 }
 .welcome-actions {
   display: flex;
@@ -172,7 +200,64 @@ h5 {
 }
 
 .welcome--instruction {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   line-height: 1.5rem;
+
+  word-break: break-all;
+  font-size: 13px;
+  text-align: center;
+}
+
+.loading--modal {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin: 0;
+  padding: 1rem;
+  background-color: var(--sea-shell);
+  min-width: 30rem;
+  border-radius: 0.5rem;
+  position: relative;
+}
+.loading--card {
+  display: flex;
+  font-family: "Digital Numbers Regular", poppins, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--purple);
+  max-width: 400px;
+  font-size: 3rem;
+  font-weight: 500;
+  gap: 0.5rem;
+ 
+
+  justify-content: center;
+  align-items: center;
+}
+.loading-game-text>p{
+  font-family: poppins, "Segoe UI", Tahoma, Geneva;
+  font-size: 12px;
+  color: var(--grey);
+  text-align: center;
+  max-width: 200px;
+}
+.loading--card> p {
+  animation: simulateLoading infinite 1s;
+}
+.loading-game-text>h4{
+  animation: simulateLoading infinite 1s;
+  text-align: center;
+}
+.loading--card> :nth-child(2) {
+  animation-delay: 0.1s;
+}
+.loading--card> :nth-child(3) {
+  animation-delay: 0.3s;
+}
+.loading--card> :nth-child(4) {
+  animation-delay: 0.2s;
 }
 
 .green--variant {
@@ -182,9 +267,9 @@ h5 {
 }
 
 .invite--wrapper {
-  display: flex;
+  display: none;
   width: 100%;
-  margin-top: 2rem;
+  margin-bottom: 1rem;
 }
 .invite-link {
   padding: 0.8rem;
@@ -219,8 +304,7 @@ h5 {
   grid-column-end: 3;
   font-size: 3rem;
   text-align: center;
-  font-family: var(--game-font),
-    sans-serif;
+  font-family: var(--game-font), sans-serif;
 }
 .player-x-score {
   font-size: 3rem;
@@ -229,7 +313,7 @@ h5 {
   grid-column-start: 1;
   grid-column-end: 2;
   text-align: center;
-  font-family:  var(--game-font);
+  font-family: var(--game-font);
 }
 .player-o-score {
   font-size: 3rem;
@@ -238,7 +322,7 @@ h5 {
   grid-column-start: 3;
   grid-column-end: 4;
   text-align: center;
-  font-family:  var(--game-font);
+  font-family: var(--game-font);
 }
 
 .final-score-x {
@@ -271,7 +355,6 @@ h5 {
   cursor: pointer;
   font-size: 0.9rem;
 }
-/*------------------------- */
 
 .score-container {
   display: flex;
@@ -282,13 +365,13 @@ h5 {
   white-space: nowrap;
   font-size: 0.7rem;
   color: var(--green);
-  font-family:  var(--game-font);
+  font-family: var(--game-font);
 }
 .title {
   white-space: nowrap;
   font-size: 2rem;
   color: var(--green);
-  font-family:  var(--game-font);
+  font-family: var(--game-font);
 }
 
 .container {
@@ -336,7 +419,7 @@ h5 {
 .player-turn {
   font-size: 1rem;
   color: var(--green);
-  font-family:  var(--game-font);
+  font-family: var(--game-font);
 }
 
 .play-button {
@@ -376,6 +459,18 @@ h5 {
   }
 }
 
+@keyframes simulateLoading {
+  0% {
+    opacity: 1;
+  }
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 @keyframes scroll-left {
   0% {
     -moz-transform: translateX(100%);
@@ -386,5 +481,49 @@ h5 {
     -moz-transform: translateX(-100%);
     -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
+  }
+}
+
+/* ==========================RESPONSIVE SCREENS=============================== */
+@media screen and (max-width: 700px) {
+  .sasuke--img,
+  .naruto--img {
+    display: none;
+  }
+  .welcome-modal {
+    max-width: 85%;
+    min-width: auto;
+    overflow: hidden;
+    text-align: center;
+    /* display: none; */
+  }
+
+  .welcome--instruction {
+    font-size: smaller;
+  }
+  .welcome-title {
+    font-size: medium;
+    word-wrap: break-word;
+  }
+  .modal-container {
+    width: 100vw;
+  }
+
+  .welcome-actions {
+    /* width: auto; */
+  }
+  .tile {
+    width: 40px;
+    height: 40px;
+  }
+  .title {
+    font-size: medium;
+  }
+
+  .welcome--instruction {
+    padding: 0;
+  }
+  .bottom-panel {
+    min-width: auto;
   }
 }
